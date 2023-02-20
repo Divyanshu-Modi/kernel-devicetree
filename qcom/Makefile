@@ -6,6 +6,26 @@
 
 add-overlays = $(foreach o,$1,$(foreach b,$2,$(eval $(basename $b)-$(basename $o)-dtbs = $b $o) $(basename $b)-$(basename $o).dtb))
 
+# Only include Xiaomi DTBs
+ifeq ($(CONFIG_MACH_XIAOMI), y)
+ifneq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
+$(error Xiaomi DT w/o overlay is undefined!!!)
+endif
+
+YUPIK_BASE_DTB += yupik.dtb
+
+XIAOMI_YUPIK_BOARDS += \
+		lisa-sm7325-overlay.dtbo \
+		redwood-sm7325-overlay.dtbo
+
+yupik-dtb-$(CONFIG_ARCH_YUPIK) += \
+	$(call add-overlays, $(XIAOMI_YUPIK_BOARDS), $(YUPIK_BASE_DTB))
+yupik-overlays-dtb-$(CONFIG_ARCH_YUPIK) += $(XIAOMI_YUPIK_BOARDS) $(YUPIK_BASE_DTB)
+
+dtb-y += $(yupik-dtb-y)
+
+else
+
 ifneq ($(CONFIG_ARCH_QTI_VM), y)
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
 LAHAINA_BASE_DTB += lahaina.dtb lahaina-v2.dtb lahaina-v2.1.dtb
@@ -552,6 +572,7 @@ dtb-$(CONFIG_ARCH_DIREWOLF) += direwolf-ivi-rumi.dtb \
 	direwolf-ivi-adp-star.dtb \
 	direwolf-adas-rumi.dtb \
 	direwolf-adas-adp-star.dtb
+endif
 endif
 
 always		:= $(dtb-y)
