@@ -1,0 +1,78 @@
+/*
+ * Copyright (c) 2023 Atom-X-Devs.
+ * Divyanshu-Modi <divyan.m05@gmail.com>
+ *
+ * Xiaomi SM4450 based SKY platform specific
+ */
+
+&qupv3_se6_spi_pins {
+	qupv3_se6_spi_cs_sleep: qupv3_se6_spi_cs_sleep {
+		mux {
+			pins = "gpio27";
+			unction = "gpio";
+		};
+
+		config {
+			pins = "gpio27";
+			drive-strength = <2>;
+			bias-disable;
+		};
+	};
+};
+
+&qupv3_se6_spi_sleep {
+	mux {
+		pins = "gpio50", "gpio51", "gpio26";
+		function = "gpio";
+	};
+
+	config {
+		pins = "gpio50", "gpio51", "gpio26";
+		drive-strength = <2>;
+		bias-pull-down;
+	};
+};
+
+&tlmm {
+	msm_gpio_102: msm_gpio_102 {
+		mux {
+			pins = "gpio102";
+			unction = "gpio";
+		};
+
+		config {
+			pins = "gpio102";
+			drive-strength = <2>;
+			bias-disable;
+			output-low;
+		};
+	};
+
+	msm_gpio_102_output_high: msm_gpio_102_output_high {
+		mux {
+			pins = "gpio102";
+			unction = "gpio";
+		};
+
+		config {
+			pins = "gpio102";
+			drive-strength = <2>;
+			bias-disable;
+			output-high;
+		};
+	};
+
+	msm_gpio_105: msm_gpio_105 {
+		mux {
+			pins = "gpio105";
+			unction = "gpio";
+		};
+
+		config {
+			pins = "gpio105";
+			drive-strength = <2>;
+			bias-pull-up;
+			input-enable;
+		};
+	};
+};

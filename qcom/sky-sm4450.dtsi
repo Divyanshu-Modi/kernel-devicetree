@@ -1,0 +1,203 @@
+/*
+ * Copyright (c) 2023 Atom-X-Devs.
+ * Divyanshu-Modi <divyan.m05@gmail.com>
+ *
+ * Xiaomi SM4450 based SKY platform specific
+ */
+
+#include "sky-sm4450-pinctrl.dtsi"
+#include "sky-sm4450-pmic-overlay.dtsi"
+#include "ravelin-thermal-overlay.dtsi"
+#include "ravelin-adrastea.dtsi"
+
+&soc {
+	fpc1020 {
+		status = "ok";
+		compatible = "fpc,fpc1020";
+		pinctrl-names = "fpc1020_reset_reset",
+						"fpc1020_reset_active",
+						"fpc1020_irq_active";
+		fp_vdd_vreg-supply = <&L4E>;
+		fpc,gpio_irq = <&tlmm 105 0x0>;
+		fpc,gpio_rst = <&tlmm 102 0x0>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <105 0x0>;
+		pinctrl-0 = <&msm_gpio_102>;
+		pinctrl-1 = <&msm_gpio_102_output_high>;
+		pinctrl-2 = <&msm_gpio_105>;
+	};
+
+	goodix_fp {
+		status = "ok";
+		compatible = "goodix,fingerprint";
+		fp_vdd_vreg-supply = <&L4E>;
+		fp-gpio-irq = <&tlmm 105 0x0>;
+		fp-gpio-reset = <&tlmm 102 0x0>;
+	};
+
+	xiaomi_touch {
+		compatible = "xiaomi-touch";
+	};
+};
+
+/*
+ * Sky has sdcard not internal emmc
+ */
+&sdhc_1 {
+	status = "disabled";
+};
+
+&sdhc_2 {
+	status = "ok";
+	vdd-supply = <&L24B>;
+	qcom,vdd-voltage-level = <2960000 2960000>;
+	qcom,vdd-current-level = <0 800000>;
+
+	/*
+	 * min/max voltages are voted on L24B/L28B and L24B/L28B_PBS
+	 * regulators will only be voted for enabling/disabling conditions
+	 * to support FR84471 for chipsets where PMIC doesn't support
+	 * PBS ram sequence to turn OFF regulators automatically on
+	 * multicard tray removal and these new regulator resources are
+	 * exposed by PMIC team as part of this FR.
+	 */
+	vdd-en-dis-supply = <&L24B_PBS>;
+
+	vdd-io-supply = <&L28B>;
+	qcom,vdd-io-voltage-level = <1800000 2960000>;
+	qcom,vdd-io-current-level = <0 22000>;
+
+	vdd-io-en-dis-supply = <&L28B_PBS>;
+
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&sdc2_on>;
+	pinctrl-1 = <&sdc2_off>;
+
+	cd-gpios = <&tlmm 101 GPIO_ACTIVE_LOW>;
+};
+
+&ufsphy_mem {
+	/*
+	 * Here parrot phy is used for ravelin as it
+	 * do not have its own list for module load and
+	 * hence compatible is using parrot.
+	 * We have plan to improve this by making phy binary
+	 * target independent.
+	 */
+	compatible = "qcom,ufs-phy-qmp-v4-parrot";
+
+	vdda-phy-supply = <&L5B>;
+	vdda-pll-supply = <&L16B>;
+	vdda-phy-max-microamp = <88530>;
+	vdda-pll-max-microamp = <18310>;
+
+	status = "ok";
+};
+
+&ufshc_mem {
+	vdd-hba-supply = <&gcc_ufs_phy_gdsc>;
+
+	vcc-supply = <&L5E>;
+	vcc-max-microamp = <1056000>;
+
+	vccq-supply = <&L13B>;
+	vccq-max-microamp = <750000>;
+
+	vccq2-supply = <&L19B>;
+	vccq2-max-microamp = <750000>;
+
+	qcom,vddp-ref-clk-supply = <&L13B>;
+	qcom,vddp-ref-clk-max-microamp = <100>;
+
+	/*
+	 * ufs-dev-types and nvmem entries are for ufs device
+	 * identification using nvmem interface. Use number of
+	 * ufs devices supported for ufs-dev-types, and nvmem handle
+	 * added by pmic for sdam register.
+	 *
+	 * Default value taken by driver is bit[0] = 0 for 3.x and
+	 * bit[0] = 1 for 2.x driver code takes this as default case.
+	 *
+	 * But Bit value to identify ufs device is not consistent
+	 * across the targets it could be bit[0] = 0/1 for UFS2.x/3x
+	 * and vice versa. If the bit[0] value is not same as default
+	 * value used in driver and if its reverted then use flag
+	 * qcom,ufs-dev-revert to identify ufs device.
+	 */
+	ufs-dev-types = <2>;
+	qcom,ufs-dev-revert;
+	nvmem-cells = <&ufs_dev>, <&boot_config>;
+	nvmem-cell-names = "ufs_dev", "boot_conf";
+
+	status = "ok";
+};
+
+&usb0 {
+	dwc3@a600000 {
+		usb-phy = <&usb2_phy0>, <&usb_nop_phy>;
+		maximum-speed = "high-speed";
+	};
+};
+
+&usb_qmp_dp_phy {
+	status = "disabled";
+};
+
+&usb2_phy0 {
+	qcom,param-override-seq = <0x66 0x6c 0xa 0x70 0x1c 0x74>;
+};
+
+&battery_charger {
+	qcom,wireless-charging-not-supported;
+	qcom,shutdown-voltage = <3300>;
+	qcom,thermal-mitigation-step = <500000>;
+	qcom,thermal-mitigation = <3500000 3400000 3300000 3200000 3100000 3000000 2900000 2800000
+			2700000 2600000 2500000 2400000 2300000 2200000 2100000 2000000 1900000
+			1800000 1700000 1600000 1500000 1400000 1300000 1200000 1100000 1000000
+			900000 800000 700000 600000 500000 400000 300000 200000 100000 50000 0>;
+};
+
+&qupv3_se1_i2c {
+	ktd3136@36 {
+		compatible = "ktd,ktd3136";
+		reg = <0x36>;
+		ktd,hwen-gpio = <&pm6450_gpios 6 IRQ_TYPE_EDGE_RISING>;
+	};
+
+	ocp2131@3e {
+		compatible = "qcom,ocp2131_bias";
+		reg = <0x3e>;
+		lcm-enn-gpio = <&pm7250b_gpios 4 IRQ_TYPE_EDGE_RISING>;
+		lcm-enp-gpio = <&pm7250b_gpios 2 IRQ_TYPE_EDGE_RISING>;
+	};
+};
+
+&qupv3_se6_spi {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "ok";
+	pinctrl-1 = <&qupv3_se6_spi_sleep &qupv3_se6_spi_cs_sleep>;
+
+	xiaomi_m19_touch@0 {
+		compatible = "novatek,NVT-ts-spi", "focaltech,fts";
+		reg = <0>;
+
+		interrupt-parent = <&tlmm>;
+		interrupts = <13 IRQ_TYPE_EDGE_FALLING>;
+		spi-max-frequency = <9600000>;
+
+		focaltech,reset-gpio = <&tlmm 12 0>;
+		focaltech,irq-gpio = <&tlmm 13 0x2001>;
+		focaltech,display-coords = <0 0 10800 24600>;
+		focaltech,max-touch-number = <10>;
+
+		novatek,reset-gpio = <&tlmm 12 0>;
+		novatek,irq-gpio = <&tlmm 13 0x2001>;
+		novatek,spi-rd-fast-addr = <258832>;
+		novatek,swrst-n8-addr = <258302>;
+		/*
+		 * Used for debugging purposes
+		 */
+		//novatek,mp-support-dt;
+	};
+};

@@ -1,0 +1,19 @@
+/*
+ * Copyright (c) 2023 Atom-X-Devs.
+ * Divyanshu-Modi <divyan.m05@gmail.com>
+ *
+ * Xiaomi SM4450 based SKY platform specific
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "sky-sm4450.dtsi"
+
+/ {
+	model = "sky based Qualcomm Technologies, Inc. SM4450";
+	compatible = "qcom,ravelin-qrd", "qcom,ravelin", "qcom,qrd";
+	qcom,msm-id = <568 0x10000>, <602 0x10000>, <581 0x10000>, <582 0x10000>;
+	qcom,board-id = <0x1000B 0>;
+};
+

@@ -1,3 +1,15 @@
+# Only include Xiaomi DTBs
+ifeq ($(CONFIG_MACH_XIAOMI), y)
+ifneq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
+$(error Xiaomi DT w/o overlay is undefined!!!)
+endif
+
+dtbo-$(CONFIG_MACH_XIAOMI_SKY) += sky-sm4450-overlay.dtbo
+
+sky-sm4450-overlay.dtbo-base := ravelin.dtb
+
+else
+
 ifneq ($(CONFIG_ARCH_QTI_VM), y)
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
 dtbo-$(CONFIG_ARCH_LAHAINA) += lahaina-rumi-overlay.dtbo \
@@ -698,6 +710,7 @@ dtb-$(CONFIG_ARCH_QTI_VM) +=  \
 	montague-vm-moselle.dtb \
 	montague-vm-hsp.dtb
 
+endif
 endif
 endif
 
