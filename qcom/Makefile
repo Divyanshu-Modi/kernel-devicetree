@@ -1,55 +1,134 @@
+# add-overlay defines the target with following naming convention:
+# <base>-<board>-dtbs = base.dtb board.dtbo
+#
+# Combined dtb target is also generated using the fdt_overlay tool.
+# dtb-y += <base>-<board>.dtb
+
+add-overlays = $(foreach o,$1,$(foreach b,$2,$(eval $(basename $b)-$(basename $o)-dtbs = $b $o) $(basename $b)-$(basename $o).dtb))
+
 ifneq ($(CONFIG_ARCH_QTI_VM), y)
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
-dtbo-$(CONFIG_ARCH_LAHAINA) += lahaina-rumi-overlay.dtbo \
-	lahaina-mtp-overlay.dtbo \
-	lahaina-mtp-hsp-overlay.dtbo \
-	lahaina-cdp-overlay.dtbo \
-	lahaina-qrd-overlay.dtbo \
-	lahaina-atp-overlay.dtbo \
-	lahaina-hdk-overlay.dtbo \
-	lahaina-hhg-overlay.dtbo \
-	lahainap-hhg-hsp-pro-overlay.dtbo \
-	lahaina-qrd-hsp-overlay.dtbo \
-	lahaina-qrd-module-overlay.dtbo \
-	lahainap-mtp-overlay.dtbo \
-	lahainap-cdp-overlay.dtbo \
-	lahainap-atp-overlay.dtbo \
-	lahainap-qrd-overlay.dtbo \
-	lahaina-cdp-v2.2-overlay.dtbo \
-	lahaina-mtp-v2-overlay.dtbo \
-	lahaina-mtp-v2.1-overlay.dtbo \
-	lahaina-mtp-hsp-pro-overlay.dtbo \
-	lahaina-cdp-hsp-pro-overlay.dtbo \
-	lahaina-qrd-hsp-pro-overlay.dtbo
+LAHAINA_BASE_DTB += lahaina.dtb lahaina-v2.dtb lahaina-v2.1.dtb
+LAHAINA_APQ_BASE_DTB += lahainap.dtb lahainap-v2.dtb lahainap-v2.1.dtb
 
-lahaina-rumi-overlay.dtbo-base := lahaina.dtb
-lahaina-mtp-hsp-overlay.dtbo-base := lahaina.dtb
-lahaina-mtp-overlay.dtbo-base := lahaina.dtb lahaina-v2.dtb lahaina-v2.1.dtb
-lahaina-cdp-overlay.dtbo-base := lahaina.dtb lahaina-v2.dtb lahaina-v2.1.dtb
-lahaina-atp-overlay.dtbo-base := lahaina.dtb lahaina-v2.dtb lahaina-v2.1.dtb
-lahaina-hdk-overlay.dtbo-base := lahaina.dtb lahaina-v2.dtb lahaina-v2.1.dtb
-lahaina-hhg-overlay.dtbo-base := lahaina.dtb lahaina-v2.dtb lahaina-v2.1.dtb
-lahainap-hhg-hsp-pro-overlay.dtbo-base := lahainap.dtb lahainap-v2.dtb lahainap-v2.1.dtb
-lahaina-qrd-hsp-overlay.dtbo-base := lahaina.dtb
-lahaina-qrd-overlay.dtbo-base := lahaina.dtb lahaina-v2.dtb lahaina-v2.1.dtb
-lahaina-qrd-module-overlay.dtbo-base := lahaina.dtb lahaina-v2.dtb lahaina-v2.1.dtb
-lahainap-mtp-overlay.dtbo-base := lahainap.dtb lahainap-v2.dtb lahainap-v2.1.dtb
-lahainap-cdp-overlay.dtbo-base := lahainap.dtb lahainap-v2.dtb lahainap-v2.1.dtb
-lahainap-atp-overlay.dtbo-base := lahainap.dtb lahainap-v2.dtb lahainap-v2.1.dtb
-lahainap-qrd-overlay.dtbo-base := lahainap.dtb lahainap-v2.dtb lahainap-v2.1.dtb
-lahaina-cdp-v2.2-overlay.dtbo-base := lahaina.dtb lahaina-v2.dtb \
-					lahaina-v2.1.dtb
-lahaina-mtp-v2-overlay.dtbo-base := lahaina.dtb lahaina-v2.dtb \
-					lahaina-v2.1.dtb
-lahaina-mtp-v2.1-overlay.dtbo-base := lahaina.dtb lahaina-v2.dtb \
-					lahaina-v2.1.dtb
-lahaina-mtp-hsp-pro-overlay.dtbo-base := lahaina.dtb lahaina-v2.dtb \
-					lahaina-v2.1.dtb
-lahaina-cdp-hsp-pro-overlay.dtbo-base := lahaina.dtb lahaina-v2.dtb \
-					lahaina-v2.1.dtb
-lahaina-qrd-hsp-pro-overlay.dtbo-base := lahaina.dtb lahaina-v2.dtb \
-					lahaina-v2.1.dtb
+LAHAINA_BOARDS += \
+		lahaina-rumi-overlay.dtbo \
+		lahaina-mtp-hsp-overlay.dtbo \
+		lahaina-qrd-hsp-overlay.dtbo
+
+LAHAINA_V2_BOARDS += \
+		lahaina-mtp-overlay.dtbo \
+		lahaina-mtp-v2-overlay.dtbo \
+		lahaina-mtp-v2.1-overlay.dtbo \
+		lahaina-mtp-hsp-pro-overlay.dtbo \
+		lahaina-cdp-overlay.dtbo \
+		lahaina-cdp-v2.2-overlay.dtbo \
+		lahaina-cdp-hsp-pro-overlay.dtbo \
+		lahaina-qrd-overlay.dtbo \
+		lahaina-qrd-module-overlay.dtbo \
+		lahaina-qrd-hsp-pro-overlay \
+		lahaina-atp-overlay.dtbo \
+		lahaina-hdk-overlay.dtbo \
+		lahaina-hhg-overlay.dtbo
+
+LAHAINA_APQ_BOARDS += \
+		lahainap-mtp-overlay.dtbo \
+		lahainap-cdp-overlay.dtbo \
+		lahainap-qrd-overlay.dtbo \
+		lahainap-atp-overlay.dtbo \
+		lahainap-hhg-hsp-pro-overlay.dtbo
+
+lahaina-dtb-$(CONFIG_ARCH_LAHAINA) += \
+	$(call add-overlays, $(LAHAINA_BOARDS) $(LAHAINA_V2_BOARDS),$(LAHAINA_BASE_DTB)) \
+	$(call add-overlays, $(LAHAINA_BOARDS) $(LAHAINA_APQ_BOARDS),$(LAHAINA_APQ_BASE_DTB))
+
+lahaina-overlays-dtb-$(CONFIG_ARCH_LAHAINA) += $(LAHAINA_BOARDS) $(LAHAINA_V2_BOARDS) $(LAHAINA_BASE_DTB) $(LAHAINA_APQ_BASE_DTB)
+dtb-y += $(lahaina-dtb-y)
+
+SHIMA_BASE_DTB += shima.dtb
+
+SHIMA_BOARDS += \
+		shima-rumi-overlay.dtbo \
+		shima-atp-overlay.dtbo \
+		shima-qrd-overlay.dtbo \
+		shima-idp-overlay.dtbo \
+		shima-idp-120fps-overlay.dtbo \
+		shima-idps-digital-mics-120fps-overlay.dtbo \
+		shima-idps-digital-mics-overlay.dtbo
+
+shima-dtb-$(CONFIG_ARCH_SHIMA) += \
+	$(call add-overlays, $(SHIMA_BOARDS),$(SHIMA_BASE_DTB))
+
+shima-overlays-dtb-$(CONFIG_ARCH_SHIMA) += $(SHIMA_BOARDS) $(SHIMA_BASE_DTB)
+dtb-y += $(shima-dtb-y)
+
+YUPIK_BASE_DTB += yupik.dtb
+YUPIK_APQ_BASE_DTB += yupikp.dtb
+YUPIK_HSP_BASE_DTB += yupik-hsp.dtb
+YUPIK_APQ_HSP_BASE_DTB += yupikp-hsp.dtb
+YUPIK_IOT_BASE_DTB += yupik-iot.dtb katmai.dtb katmai-fp2.dtb
+YUPIK_APQ_IOT_BASE_DTB += yupikp-iot.dtb katmaip.dtb katmaip-fp2.dtb
+
+YUPIK_BOARDS += \
+		yupik-rumi-overlay.dtbo \
+		yupik-idp-overlay.dtbo \
+		yupik-atp-overlay.dtbo \
+		yupik-qrd-overlay.dtbo \
+		yupik-idps-amoled-overlay.dtbo \
+		yupik-idp-pm7250b-overlay.dtbo
+
+YUPIK_APQ_BOARDS += \
+		yupikp-idp-overlay.dtbo \
+		yupikp-atp-overlay.dtbo \
+		yupikp-qrd-overlay.dtbo \
+		yupik-qrd-overlay.dtbo \
+		yupikp-idps-amoled-overlay.dtbo
+
+YUPIK_HSP_BOARDS += yupik-idp-hsp-overlay.dtbo
+YUPIK_APQ_HSP_BOARDS += yupikp-idp-hsp-overlay.dtbo
+
+YUPIK_IOT_BOARDS += \
+		yupik-iot-idp-overlay.dtbo \
+		yupik-iot-idp-pm7250b-overlay.dtbo \
+		yupik-iot-qrd-overlay.dtbo \
+		yupik-iot-idps-amoled-overlay.dtbo \
+		yupik-iot-hsp-overlay.dtbo \
+		yupik-iot-hsp-pm7250b-overlay.dtbo \
+		katmai-hsp-overlay.dtbo \
+		katmai-hsp-pm7250b-overlay.dtbo \
+		katmai-fp2-hsp-overlay.dtbo \
+		katmai-fp2-hsp-pm7250b-overlay.dtbo
+
+YUPIK_APQ_IOT_BOARDS += \
+		yupikp-iot-idp-overlay.dtbo \
+		yupikp-iot-idp-pm7250b-overlay.dtbo \
+		yupikp-iot-qrd-overlay.dtbo \
+		yupikp-iot-idps-amoled-overlay.dtbo \
+		yupikp-iot-hsp-overlay.dtbo \
+		yupikp-iot-hsp-pm7250b-overlay.dtbo \
+		katmaip-hsp-overlay.dtbo \
+		katmaip-hsp-pm7250b-overlay.dtbo \
+		katmaip-fp2-hsp-overlay.dtbo \
+		katmaip-fp2-hsp-pm7250b-overlay.dtbo
+
+yupik-dtb-$(CONFIG_ARCH_YUPIK) += \
+	$(call add-overlays, $(YUPIK_BOARDS), $(YUPIK_BASE_DTB)) \
+	$(call add-overlays, $(YUPIK_BOARDS) $(YUPIK_APQ_BOARDS), $(YUPIK_APQ_BASE_DTB)) \
+	$(call add-overlays, $(YUPIK_BOARDS) $(YUPIK_HSP_BOARDS), $(YUPIK_HSP_BASE_DTB)) \
+	$(call add-overlays, $(YUPIK_BOARDS) $(YUPIK_APQ_HSP_BOARDS), $(YUPIK_APQ_HSP_BASE_DTB)) \
+	$(call add-overlays, $(YUPIK_BOARDS) $(YUPIK_IOT_BOARDS), $(YUPIK_IOT_BASE_DTB)) \
+	$(call add-overlays, $(YUPIK_BOARDS) $(YUPIK_APQ_IOT_BOARDS), $(YUPIK_APQ_IOT_BASE_DTB))
+
+yupik-overlays-dtb-$(CONFIG_ARCH_YUPIK) += \
+				$(YUPIK_BOARDS) $(YUPIK_APQ_BOARDS) \
+				$(YUPIK_HSP_BOARDS) $(YUPIK_APQ_HSP_BOARDS) \
+				$(YUPIK_IOT_BOARDS) $(YUPIK_APQ_IOT_BOARDS)
+
+dtb-y += $(yupik-dtb-y)
+
 else
+
+#LEGACY
 dtb-$(CONFIG_ARCH_LAHAINA) += lahaina-rumi.dtb \
 	lahaina-mtp-hsp.dtb \
 	lahaina-mtp.dtb \
@@ -91,6 +170,51 @@ dtb-$(CONFIG_ARCH_LAHAINA) += lahaina-rumi.dtb \
 	lahaina-v2.1-mtp-hsp-pro.dts \
 	lahaina-v2.1-cdp-hsp-pro.dts \
 	lahaina-v2.1-qrd-hsp-pro.dts
+
+dtb-$(CONFIG_ARCH_SHIMA) += shima-rumi.dtb  \
+			    shima-idp.dtb   \
+			    shima-idp-120fps.dtb  \
+			    shima-atp.dtb \
+			    shima-qrd.dtb \
+			    shima-idps-digital-mics.dtb \
+			    shima-idps-digital-mics-120fps.dtb
+
+dtb-$(CONFIG_ARCH_YUPIK) += yupik-rumi.dtb \
+	yupik-idp.dtb \
+	yupik-atp.dtb \
+	yupik-qrd.dtb \
+	yupik-idps-amoled.dtb \
+	yupik-idp-pm7250b.dtb \
+	yupik-idp-hsp.dtb \
+	yupikp-idp.dtb \
+	yupikp-atp.dtb \
+	yupikp-qrd.dtb \
+	yupikp-idps-amoled.dtb \
+	yupikp-idp-hsp.dtb \
+	yupik-iot-idp.dtb \
+	yupik-iot-idp-pm7250b.dtb \
+	yupik-iot-qrd.dtb \
+	yupik-iot-hsp.dtb \
+	yupik-iot-idps-amoled.dtb \
+	yupikp-iot-idp.dtb \
+	yupikp-iot-idp-pm7250b.dtb \
+	yupikp-iot-qrd.dtb \
+	yupikp-iot-hsp.dtb \
+	yupik-iot-hsp-pm7250b.dtb \
+	yupikp-iot-hsp-pm7250b.dtb \
+	yupikp-iot-idps-amoled.dtb \
+	katmai-idp.dtb \
+	katmai-idp-pm7250b.dtb \
+	katmai-qrd.dtb \
+	katmai-hsp.dtb \
+	katmai-idps-amoled.dtb \
+	katmaip-idp.dtb \
+	katmaip-idp-pm7250b.dtb \
+	katmaip-qrd.dtb \
+	katmaip-hsp.dtb \
+	katmai-hsp-pm7250b.dtb \
+	katmaip-hsp-pm7250b.dtb \
+	katmaip-idps-amoled.dtb
 endif
 
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
@@ -190,140 +314,7 @@ dtb-$(CONFIG_ARCH_BLAIR) += blair-rumi.dtb \
 	blairp-mtp-usbc.dtb \
 	blairp-mtp-nopmi.dtb \
 	blairp-qrd-nopmi.dtb
-endif
 
-ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
-dtbo-$(CONFIG_ARCH_SHIMA) +=    \
-	shima-rumi-overlay.dtbo \
-	shima-idp-overlay.dtbo  \
-	shima-idp-120fps-overlay.dtbo \
-	shima-atp-overlay.dtbo \
-	shima-qrd-overlay.dtbo \
-	shima-idps-digital-mics-overlay.dtbo \
-	shima-idps-digital-mics-120fps-overlay.dtbo
-
-shima-rumi-overlay.dtbo-base := shima.dtb
-shima-idp-overlay.dtbo-base := shima.dtb
-shima-idp-120fps-overlay.dtbo-base := shima.dtb
-shima-atp-overlay.dtbo-base := shima.dtb
-shima-qrd-overlay.dtbo-base := shima.dtb
-shima-idps-digital-mics-overlay.dtbo-base := shima.dtb
-shima-idps-digital-mics-120fps-overlay.dtbo-base := shima.dtb
-else
-dtb-$(CONFIG_ARCH_SHIMA) += shima-rumi.dtb  \
-			    shima-idp.dtb   \
-			    shima-idp-120fps.dtb  \
-			    shima-atp.dtb \
-			    shima-qrd.dtb \
-			    shima-idps-digital-mics.dtb \
-			    shima-idps-digital-mics-120fps.dtb
-endif
-
-ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
-dtbo-$(CONFIG_ARCH_YUPIK) +=    \
-	yupik-rumi-overlay.dtbo \
-	yupik-idp-overlay.dtbo \
-	yupik-atp-overlay.dtbo \
-	yupik-qrd-overlay.dtbo \
-	yupik-idps-amoled-overlay.dtbo \
-	yupik-idp-pm7250b-overlay.dtbo \
-	yupik-idp-hsp-overlay.dtbo \
-	yupikp-idp-overlay.dtbo \
-	yupikp-atp-overlay.dtbo \
-	yupikp-qrd-overlay.dtbo \
-	yupikp-idps-amoled-overlay.dtbo \
-	yupikp-idp-hsp-overlay.dtbo \
-	yupik-iot-idp-overlay.dtbo \
-	yupik-iot-idp-pm7250b-overlay.dtbo \
-	yupik-iot-qrd-overlay.dtbo \
-	yupik-iot-hsp-overlay.dtbo \
-	yupik-iot-hsp-pm7250b-overlay.dtbo \
-	katmai-hsp-overlay.dtbo \
-	katmai-hsp-pm7250b-overlay.dtbo \
-	katmai-fp2-hsp-overlay.dtbo \
-	katmai-fp2-hsp-pm7250b-overlay.dtbo \
-	yupik-iot-idps-amoled-overlay.dtbo \
-	yupikp-iot-idp-overlay.dtbo \
-	yupikp-iot-idp-pm7250b-overlay.dtbo \
-	yupikp-iot-qrd-overlay.dtbo \
-	yupikp-iot-hsp-overlay.dtbo \
-	yupikp-iot-hsp-pm7250b-overlay.dtbo \
-	katmaip-hsp-overlay.dtbo \
-	katmaip-hsp-pm7250b-overlay.dtbo \
-	katmaip-fp2-hsp-overlay.dtbo \
-	katmaip-fp2-hsp-pm7250b-overlay.dtbo \
-	yupikp-iot-idps-amoled-overlay.dtbo
-
-
-yupik-rumi-overlay.dtbo-base := yupik.dtb
-yupik-idp-overlay.dtbo-base := yupik.dtb
-yupik-atp-overlay.dtbo-base := yupik.dtb
-yupik-qrd-overlay.dtbo-base := yupik.dtb
-yupik-idps-amoled-overlay.dtbo-base := yupik.dtb
-yupik-idp-pm7250b-overlay.dtbo-base := yupik.dtb
-yupik-idp-hsp-overlay.dtbo-base := yupik-hsp.dtb
-yupikp-idp-overlay.dtbo-base := yupikp.dtb
-yupikp-atp-overlay.dtbo-base := yupikp.dtb
-yupikp-qrd-overlay.dtbo-base := yupikp.dtb
-yupikp-idps-amoled-overlay.dtbo-base := yupikp.dtb
-yupikp-idp-hsp-overlay.dtbo-base := yupikp-hsp.dtb
-yupik-iot-idp-overlay.dtbo-base := yupik-iot.dtb katmai.dtb katmai-fp2.dtb
-yupik-iot-idp-pm7250b-overlay.dtbo-base := yupik-iot.dtb katmai.dtb katmai-fp2.dtb
-yupik-iot-qrd-overlay.dtbo-base := yupik-iot.dtb katmai.dtb katmai-fp2.dtb
-yupik-iot-hsp-overlay.dtbo-base := yupik-iot.dtb
-yupik-iot-hsp-pm7250b-overlay.dtbo-base := yupik-iot.dtb
-katmai-hsp-overlay.dtbo-base :=  katmai.dtb
-katmai-hsp-pm7250b-overlay.dtbo-base :=  katmai.dtb
-katmai-fp2-hsp-overlay.dtbo-base :=  katmai-fp2.dtb
-katmai-fp2-hsp-pm7250b-overlay.dtbo-base :=  katmai-fp2.dtb
-yupik-iot-idps-amoled-overlay.dtbo-base := yupik-iot.dtb katmai.dtb katmai-fp2.dtb
-yupikp-iot-idp-overlay.dtbo-base := yupikp-iot.dtb katmaip.dtb katmaip-fp2.dtb
-yupikp-iot-idp-pm7250b-overlay.dtbo-base := yupikp-iot.dtb katmaip.dtb katmaip-fp2.dtb
-yupikp-iot-qrd-overlay.dtbo-base := yupikp-iot.dtb katmaip.dtb katmaip-fp2.dtb
-yupikp-iot-hsp-overlay.dtbo-base := yupikp-iot.dtb
-yupikp-iot-hsp-pm7250b-overlay.dtbo-base := yupikp-iot.dtb
-katmaip-hsp-overlay.dtbo-base := katmaip.dtb
-katmaip-hsp-pm7250b-overlay.dtbo-base := katmaip.dtb
-katmaip-fp2-hsp-overlay.dtbo-base := katmaip-fp2.dtb
-katmaip-fp2-hsp-pm7250b-overlay.dtbo-base := katmaip-fp2.dtb
-yupikp-iot-idps-amoled-overlay.dtbo-base := yupikp-iot.dtb katmaip.dtb katmaip-fp2.dtb
-else
-dtb-$(CONFIG_ARCH_YUPIK) += yupik-rumi.dtb \
-	yupik-idp.dtb \
-	yupik-atp.dtb \
-	yupik-qrd.dtb \
-	yupik-idps-amoled.dtb \
-	yupik-idp-pm7250b.dtb \
-	yupik-idp-hsp.dtb \
-	yupikp-idp.dtb \
-	yupikp-atp.dtb \
-	yupikp-qrd.dtb \
-	yupikp-idps-amoled.dtb \
-	yupikp-idp-hsp.dtb \
-	yupik-iot-idp.dtb \
-	yupik-iot-idp-pm7250b.dtb \
-	yupik-iot-qrd.dtb \
-	yupik-iot-hsp.dtb \
-	yupik-iot-idps-amoled.dtb \
-	yupikp-iot-idp.dtb \
-	yupikp-iot-idp-pm7250b.dtb \
-	yupikp-iot-qrd.dtb \
-	yupikp-iot-hsp.dtb \
-	yupik-iot-hsp-pm7250b.dtb \
-	yupikp-iot-hsp-pm7250b.dtb \
-	yupikp-iot-idps-amoled.dtb \
-	katmai-idp.dtb \
-	katmai-idp-pm7250b.dtb \
-	katmai-qrd.dtb \
-	katmai-hsp.dtb \
-	katmai-idps-amoled.dtb \
-	katmaip-idp.dtb \
-	katmaip-idp-pm7250b.dtb \
-	katmaip-qrd.dtb \
-	katmaip-hsp.dtb \
-	katmai-hsp-pm7250b.dtb \
-	katmaip-hsp-pm7250b.dtb \
-	katmaip-idps-amoled.dtb
 endif
 
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
